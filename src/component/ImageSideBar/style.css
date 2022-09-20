@@ -1,0 +1,47 @@
+#sidebar {
+    height: 100%;
+    width: 140px;
+    box-sizing: border-box;
+    border: 1px solid #1b1b1b;
+    background-color: #1b1b1b;
+    /* overflow-y: auto; */
+}
+
+#layer-container {
+    height: 96%;
+    /* flex-grow: 1; */
+    width: 100%;
+    overflow-y: auto;
+}
+
+#add-layer {
+    width: 90%;
+    height: 3%;
+    margin: 2px auto;
+    text-align: center;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+}
+#add-layer img {
+    height: 100%;
+    margin: 0 auto;
+}
+
+#sidebar .bar {
+    margin: 2px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#sidebar .bar canvas {
+    margin: 0 auto;
+    border-radius: 6px;
+}
+
+.common-canvas {
+    border: 2px solid #2c2c2c;
+}
+
+.highlight-canvas{
+    border: 2px solid #0b8dfb;
+}

@@ -1,0 +1,13 @@
+.toolbar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.toolbar-item {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+}

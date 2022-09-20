@@ -1,0 +1,9 @@
+.event-button_box {
+    height: 70%;
+    text-align: center;
+    padding: 4px;
+}
+
+.event-button {
+    height: 100%;
+}
