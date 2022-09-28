@@ -4,6 +4,7 @@ import { Button, Card, message, Tag, Alert, Progress, Select } from 'antd';
 import ReactDom from 'react-dom'
 import LabelImage from '../../lib/webAnnotate'
 import Task from '../../lib/tasks'
+import AttributeInput from '../AttributeInput'
 import { changeConfirmLocale } from "antd/lib/modal/locale";
 import svg_input_url from "../../assets/imgs/tool-openField.svg"
 import svg_download_url from "../../assets/imgs/tool-download.svg"
@@ -51,6 +52,11 @@ export default function LabelDisplay() {
     const updateInfo = useInfoUpdate()
     //下拉框
     const [imagesList, setimagesList] = useState([]);
+
+    //设置实体名称
+    const nameTp = useRef(null);
+    //设置实体属性
+    const attributesTp = useRef(null);
     //关系类型
     let relType = useRef(null);
 
@@ -157,7 +163,6 @@ export default function LabelDisplay() {
         _nodes.image = new Image();
         _nodes.image.crossOrigin = 'anonymous';
         _nodes.image.src = src;
-        console.log(_nodes.image, src)
         // console.log(src)
         // //监听图片加载
         // _nodes.image.onload = function () {
@@ -267,7 +272,6 @@ export default function LabelDisplay() {
                 entityContext.array.push(ent)
                 updateEntityArray(entityContext.array)
                 // annotate.current.Arrays.imageAnnotateShower.push(ent)
-                console.log(entityArray, entityContext)
 
                 relationshipArray.current = []
                 updateRelationshipArray(relationshipArray.current)
@@ -499,7 +503,6 @@ export default function LabelDisplay() {
         })
         ReplaceAnnotateMemory()
         updateEntityArrayTp()
-        console.log(entityContext)
         updateEntityArray(entityContext.array)
     };
 
@@ -1080,6 +1083,14 @@ export default function LabelDisplay() {
     }
 
 
+
+    const changeName = (name) => {
+        nameTp.current = name
+    }
+    const changeAttributes = (attr) => {
+        attributesTp.current = attr
+    }
+
     //----绘制矩形时鼠标抬起后移除监听函数
     const MouseUpRemoveDrawRect = () => {
 
@@ -1104,43 +1115,71 @@ export default function LabelDisplay() {
         annotate.current.Nodes.canvas.removeEventListener('mousemove', MouseMoveDrawRect);
         annotate.current.Nodes.canvas.removeEventListener('mouseup', MouseUpRemoveDrawRect);
 
+        attributesTp.current = []
+        nameTp.current = ''
+        let attributeInputDiv = document.getElementById('attributeInputDiv');
+        // let canvasArea = document.querySelector('.canvasContent');
+        // canvasArea.appendChild(attributeInputDiv);
+        attributeInputDiv.style['z-index'] = '9999'
+        attributeInputDiv.style.position = "absolute";
+        attributeInputDiv.style.left = maxP[0] + 'px'
+        attributeInputDiv.style.top = minP[1] + 'px'
+        attributeInputDiv.style.width = '250px'
+        attributeInputDiv.style.height = '300px'
+        // attributeInputDiv = return (<div>111</div>)
 
-        let input = document.createElement('input');
-        let canvasArea = document.querySelector('.canvasContent');
-        canvasArea.appendChild(input);
-        input.focus()
-        input.style.position = "absolute";
-        input.style.left = minP[0] + (maxP[0] - minP[0]) / 2 - 50 + 'px'
-        input.style.top = minP[1] + (maxP[1] - minP[1]) / 2 - 25 + 'px'
-        input.style.width = '100px'
-        input.style.height = '50px'
-        input.style.fontSize = `${parseInt(input.style.height) / 2}px`;
-        input.style.border = "0px";
-        input.style.background = "rgb(0,0,0,0)"
-        input.style.outline = 'none'
-        window.addEventListener("keyup", (e) => {
-            if ("Enter" === e.key) {
-                input.blur()
-                window.onkeyup = null
-            }
-        })
-        input.addEventListener('input', (e) => {
-            const target = e.target as HTMLTextAreaElement;
-            annotate.current.inputs = target.value
-        })
-        input.addEventListener('blur', () => {
+        let confirmDiv = document.createElement('div');
+        confirmDiv.className = 'confirmDiv'
+        attributeInputDiv.appendChild(confirmDiv)
+
+
+        // let input = document.createElement('input');
+        // canvasArea.appendChild(input);
+        // input.focus()
+        // input.className = 'attributeInputDiv'
+        // // input.style.left = minP[0] + (maxP[0] - minP[0]) / 2 - 50 + 'px'
+        // // input.style.top = minP[1] + (maxP[1] - minP[1]) / 2 - 25 + 'px'
+        // input.style.fontSize = `${parseInt(input.style.height) / 2}px`;
+        // attributeInputDiv.appendChild(input)
+        confirmDiv.addEventListener("click", (e) => {
+            // input.blur()
+            // attributeInputDiv.style.opacity = '0'
             annotate.current.Arrays.resultIndex = annotate.current.Arrays.imageAnnotateShower.length
             let index = annotate.current.Arrays.resultIndex - 1;
-            annotate.current.Arrays.imageAnnotateShower[index].name = annotate.current.inputs
+            annotate.current.Arrays.imageAnnotateShower[index].name = nameTp.current
+            annotate.current.Arrays.imageAnnotateShower[index].attribute = attributesTp.current
             annotate.current.Arrays.resultIndex = 0
             let id = annotate.current.Arrays.imageAnnotateShower[index].id
-            entityContext.array.find(function (d) { return d.id == id }).name = annotate.current.inputs
+            let ent = entityContext.array.find(function (d) { return d.id == id })
+            ent.name = nameTp.current
+            ent.attribute = attributesTp.current
             ReplaceAnnotateMemory()
             DrawSavedAnnotateInfoToShow()
-            annotate.current.inputs = ""
-            canvasArea.removeChild(input);
+            nameTp.current = ""
+            attributesTp.current = []
+            // canvasArea.removeChild(input);
+            // canvasArea.removeChild(attributeInputDiv)
 
+            attributeInputDiv.style['z-index'] = '-9999'
+            attributeInputDiv.removeChild(confirmDiv)
         })
+        // input.addEventListener('input', (e) => {
+        //     const target = e.target as HTMLTextAreaElement;
+        //     annotate.current.inputs = target.value
+        // })
+        // input.addEventListener('blur', () => {
+        //     annotate.current.Arrays.resultIndex = annotate.current.Arrays.imageAnnotateShower.length
+        //     let index = annotate.current.Arrays.resultIndex - 1;
+        //     annotate.current.Arrays.imageAnnotateShower[index].name = annotate.current.inputs
+        //     annotate.current.Arrays.resultIndex = 0
+        //     let id = annotate.current.Arrays.imageAnnotateShower[index].id
+        //     entityContext.array.find(function (d) { return d.id == id }).name = annotate.current.inputs
+        //     ReplaceAnnotateMemory()
+        //     DrawSavedAnnotateInfoToShow()
+        //     annotate.current.inputs = ""
+        //     // canvasArea.removeChild(input);
+        //     canvasArea.removeChild(attributeInputDiv)
+        // })
 
     };
 
@@ -1239,7 +1278,6 @@ export default function LabelDisplay() {
         })
         input.addEventListener('blur', () => {
             let index = annotate.current.Arrays.relationshipAnnotateShower.length - 1
-            console.log(annotate.current.Arrays.relationshipAnnotateShower.length, annotate.current.Arrays.relationshipAnnotateShower, annotate.current.Arrays.relationshipAnnotateShower[index])
             annotate.current.Arrays.relationshipAnnotateShower[index].name = annotate.current.inputs
             let id = annotate.current.Arrays.relationshipAnnotateShower[index].id
             relationshipArray.current.find(function (d) { return d.id == id }).name = annotate.current.inputs
@@ -1642,7 +1680,7 @@ export default function LabelDisplay() {
                     labelColorRGB: color,
                     visibility: _nodes.labelShower.children[0].checked,
                 },
-                attribute: {},
+                attribute: [],
                 trend: [],
                 color: color,
                 type: "",
@@ -1682,7 +1720,7 @@ export default function LabelDisplay() {
                         x: lx,
                         y: ly
                     },
-                    "attribute": {},
+                    "attribute": [],
                     "name": "",
                     "type": "",
                     "contentType": contentType,
@@ -1737,7 +1775,7 @@ export default function LabelDisplay() {
         ent.contentType = contentType
         ent.name = ""
         ent.id = id
-        ent.attribute = {}
+        ent.attribute = []
         ent.type = "未指定"
         ent.color = color
         ent.visAble = true
@@ -2144,7 +2182,6 @@ export default function LabelDisplay() {
                 break;
             case t == 'pos':
                 relType.current = ({ type: "position", color: "rgb(0,255,0)" })
-                console.log(relType)
                 break;
             case t == 'att':
                 relType.current = ({ type: "attribute", color: "rgb(0,0,255)" })
@@ -2155,7 +2192,6 @@ export default function LabelDisplay() {
     useEffect(() => {
         let _arrays = annotate.current.Arrays;
         if ((infoContext != undefined) && (infoContext.changeState == 1)) {
-            console.log(entityContext.array)
             // _arrays.imageAnnotateShower = entityContext.array
             // entityArray.current = (entityContext.array)
             // ReplaceAnnotateMemory();
@@ -2335,6 +2371,9 @@ export default function LabelDisplay() {
                         </div>
                         <div className="canvasContent">
                             <canvas ref={can} id="canvas"></canvas>
+                            <div id="attributeInputDiv">
+                                <AttributeInput name={nameTp.current} attributes={attributesTp.current} changeName={changeName} changeAttributes={changeAttributes}></AttributeInput>
+                            </div>
                             <div className="scaleBox">
 
                                 <div className="scaleCanvas">

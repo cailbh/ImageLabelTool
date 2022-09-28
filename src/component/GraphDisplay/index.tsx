@@ -64,6 +64,8 @@ export default function GraphDisplay() {
     const chart = useRef(null);
     const changeActive = useRef(null)
 
+    const focusEntId = useRef(null)
+
     const [layoutType, setLayoutType] = useState(0)
 
     // setChange(1)
@@ -113,12 +115,27 @@ export default function GraphDisplay() {
     }
     //实体鼠标漂浮
     const entityMouseOver = (ent) => {
+        var item = ent.target
+        focusEntId.current = item.id
+        let svgWidth = chart.current.clientWidth
+        let svgHeight = chart.current.clientHeight
+        var graphDiv = d3.select('#graph')
+        var svg = graphDiv
+            .select("#graphSvg")
+            .select("#entityGraph")
+            .select('#entityG')
         if (layoutType == 0) {
-            var item = ent.target
 
-            entityContext.array.forEach(function (i, index, arr) {
-                if (i.id === item.id)
+            entityContext.array.forEach(function (element, index, arr) {
+                if (element.id === item.id) {
                     arr[index].active = true
+                    // element.x = svgWidth * (element.lx - element.ix) / (element.iScale * element.iWidth)
+                    // element.y = svgHeight * (element.ly - element.iy) / (element.iScale * element.iHeight)
+                    // var rSize = 50
+                    // var smallCircles = svg.select(".smallCircle" + element.id)
+                    //     .attr("opacity", 1)
+
+                }
                 else
                     arr[index].active = false
             })
@@ -129,6 +146,7 @@ export default function GraphDisplay() {
                 changeActive.current = 1
             }
         }
+
 
         // console.log(item, entityArray, entityContext, entityTp)
         var sPathD = d3
@@ -150,17 +168,17 @@ export default function GraphDisplay() {
     }
     //实体鼠标离开
     const entityMouseOut = (ent) => {
-        if (layoutType == 0) {
-            entityContext.array.forEach(function (i, index, arr) {
-                arr[index].active = false
-            })
-            if (changeActive.current == 1) {
-                // setEntityArray([...entityArray])
-                updateEntityArray(entityContext.array)
-                updateInfo({ changeState: 1 })
-                changeActive.current = 0
-            }
+        // if (layoutType == 0) {
+        entityContext.array.forEach(function (i, index, arr) {
+            arr[index].active = false
+        })
+        if (changeActive.current == 1) {
+            // setEntityArray([...entityArray])
+            updateEntityArray(entityContext.array)
+            updateInfo({ changeState: 1 })
+            changeActive.current = 0
         }
+        // }
 
 
         var item = ent.target
@@ -177,6 +195,19 @@ export default function GraphDisplay() {
         //     .style("display", "none")
     }
 
+    const attrClick = (ent, id, index) => {
+        console.log(ent, id, index)
+        var graphDiv = d3.select('#graph')
+        var svg = graphDiv
+            .select("#graphSvg")
+            .select("#entityGraph")
+            .select('#entityG')
+
+        var tx = svg
+            .select("#t_" + id + "_" + (index - 1))
+            .attr("opacity", 1)
+        console.log(svg, tx, ".text_attr" + id + "" + (index - 1))
+    }
     const delEntityById = (strId) => {
         entityContext.array.forEach(function (item, index, arr) {
             if (item.id == strId) {
@@ -208,7 +239,6 @@ export default function GraphDisplay() {
     }
 
     const history = (tp) => {
-        console.log(entityContext, entityArray)
         if ('undo' == tp) {
             if (delEntityArray.current.length > 0) {
                 entityArray.current.push(delEntityArray.current[delEntityArray.current.length - 1])
@@ -535,6 +565,49 @@ export default function GraphDisplay() {
                             element.x = svgWidth * (element.lx - element.ix) / (element.iScale * element.iWidth)
                             element.y = svgHeight * (element.ly - element.iy) / (element.iScale * element.iHeight)
                         }
+
+
+                        var smallR = 10
+                        var k = 0
+                        var stepR = Math.PI / 5
+                        var startR = -Math.PI / 2
+                        var elementAttribute = element.attribute
+                        var len = elementAttribute.length
+                        if (focusEntId.current == element.id) {
+                            while (k < len) {
+                                var t = startR + k * stepR
+                                var x = element.x + (rSize + smallR) * Math.cos(t)
+                                var y = element.y + (rSize + smallR) * Math.sin(t)
+                                var smallCircle = svg.append("circle")
+                                    .attr("id", element.id + "_" + k)
+                                    .attr("class", "smallCircle" + element.id)
+                                    .attr("cx", x)
+                                    .attr("cy", y)
+                                    .attr("r", 10)
+                                    // .attr("opacity", 0)
+                                    .attr("fill", "rgb(0,0,0,0)")
+                                    .attr("stroke-width", 2)
+                                    .attr("stroke", element.color)
+                                    .on("click", function (d) {
+                                        attrClick(d, element.id, k)
+                                    })
+                                var attrKey = svg.append("text")
+                                    .attr("id", "t_" + element.id + "_" + k)
+                                    .attr("class", "text_attr" + element.id)
+                                    .attr("x", x + (15))
+                                    .attr("y", y)
+                                    .attr("opacity", 1)
+                                    .text(elementAttribute[k].attrKey + ": " + elementAttribute[k].attrValue)
+                                // .on("mouseover", function (d) {
+                                //     entityMouseOver(d)
+                                // })
+                                // .on("mouseout", function (d) {
+                                //     entityMouseOut(d)
+                                // })
+                                k = k + 1
+                            }
+                        }
+
                         let color = element.color
                         var pat = defs.append('pattern')
                             .attr('id', 'pic' + i)
