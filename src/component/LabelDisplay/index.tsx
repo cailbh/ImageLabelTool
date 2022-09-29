@@ -7,16 +7,14 @@ import Task from '../../lib/tasks'
 import AttributeInput from '../AttributeInput'
 import { changeConfirmLocale } from "antd/lib/modal/locale";
 import svg_input_url from "../../assets/imgs/tool-openField.svg"
-import svg_download_url from "../../assets/imgs/tool-download.svg"
-import svg_react_url from "../../assets/imgs/tool-react.svg"
-import svg_polygon_url from "../../assets/imgs/tool-polygon.svg"
-import svg_drop_url from "../../assets/imgs/drop.svg"
-import svg_tag_url from "../../assets/imgs/tag.svg"
+
 import { MemoArray, Entity, EntityArray, Relationship, RelationshipArray, Info } from '../../lib/interface'
 import { useEntityArray, useRelationshipArray, useEntityArrayUpdate, useRelationshipArrayUpdate, useInfo, useInfoUpdate, useMemoArray, useMemoArrayUpdate } from "../../lib/context";
 import uuid from "../../lib/uuid"
 import { start } from "repl";
+import entityRecognize from "../../axios/api/entityRecognize";
 // import imgimg from "../img";
+import axios from '../../axios/index'
 
 const d3 = require('d3')
 
@@ -68,8 +66,22 @@ export default function LabelDisplay() {
     let annotate = useRef<LabelImage | null>(null)
 
 
+    const entityRecognize = ()=>{
+        entityRecognizeApi()
+    }
 
-
+    const entityRecognizeApi = async()=>{
+        let data = await axios.entityRecognize.testApi({
+            
+        })
+        
+        let data1 = await axios.entityRecognize.entityRecognizeApi({
+            image:[[[1,2,3],[3,4,5],[6,7,8]],[[9,8,7],[6,5,4],[3,2,1]],[[1,2,3],[4,5,6],[7,8,9]]],
+            confidence:0.7
+        })
+        console.log(data,data1)
+    }
+ 
     const folderBut = () => {
         var input = document.querySelector('.openFolderInput') as HTMLCanvasElement
         input.click()
@@ -79,6 +91,7 @@ export default function LabelDisplay() {
     const changeFolder = (e) => {
         let Files = e.target.files
         imgFiles.current = Files
+        console.log(Files)
         localStorage.clear()
         setimagesList(Array.from(Files))
         imgSum.current = (Files.length);
@@ -2301,6 +2314,7 @@ export default function LabelDisplay() {
                                         {"Faster-rnn"}
                                     </option>
                                 </select>
+                               <div id="entityRecognize" onClick={() => { entityRecognize() }} title="打开文件夹"></div>
                             </div>
                             <div className="relationshipPrediction">关系预测：
                                 <select className="AIInterfaceSelect" onChange={objectDetectionChange.bind(this)}>

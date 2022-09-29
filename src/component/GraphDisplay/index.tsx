@@ -386,9 +386,10 @@ export default function GraphDisplay() {
                     case tar.className.indexOf('undo') > -1:
                         history('undo')
                         break;
-                    case tar.className.indexOf('redo') > -1:
-                        history('redo')
-                        break;
+                    // case tar.className.indexOf('toolPrint') > -1:
+                    //     history('redo')
+                    //     break;
+                    
                     default:
                         break
                 }

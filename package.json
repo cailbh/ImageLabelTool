@@ -11,10 +11,12 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "antd": "^4.21.7",
+    "axios": "^0.27.2",
     "d3": "^7.6.1",
     "localStorage": "^1.0.4",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
+    "react-cookies": "^0.1.1",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "reactcss": "^1.2.3",
@@ -45,5 +47,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-cookies": "^0.1.0"
   }
 }
