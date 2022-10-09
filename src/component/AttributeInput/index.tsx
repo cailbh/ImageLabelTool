@@ -126,8 +126,10 @@ export default class AttributeInput extends React.Component<AttributeInputProps,
         return (
             <div>
                 <div className="attrHead">
+                    <div className="headName">添加属性</div>
+                    {/* <div className='headValue'>属性值</div>
                     <div className="headName">属性名</div>
-                    <div className='headValue'>属性值</div>
+                    <div className='headValue'>属性值</div> */}
                 </div>
                 <div className="nameInput" >
                     <div className="attrKey">

@@ -57,6 +57,8 @@ export default function LabelDisplay() {
     const attributesTp = useRef(null);
     //关系类型
     let relType = useRef(null);
+    //图像数据
+    let imgData = useRef(null);
 
     const canvas = document.getElementById('canvas')
     const processIndex = document.getElementById('processIndex')        // 当前标注进度
@@ -71,15 +73,31 @@ export default function LabelDisplay() {
     }
 
     const entityRecognizeApi = async()=>{
-        let data = await axios.entityRecognize.testApi({
+        // let data = await axios.entityRecognize.testApi({
             
+        // })
+        // 将获取到的图像数据去除A通道
+        var iData = imgData.current.data
+        var imgArr = [];
+        for(var i=0; i<iData.length; i += 4){
+            imgArr.push(iData[i], iData[i+1], iData[i+2])
+        }
+        let data = await axios.entityRecognize.entityRecognizeApi({
+            width:imgData.current.width,
+            height:imgData.current.height,
+            image:Array.from(imgArr),
+            confidence:0.9
         })
-        
-        let data1 = await axios.entityRecognize.entityRecognizeApi({
-            image:[[[1,2,3],[3,4,5],[6,7,8]],[[9,8,7],[6,5,4],[3,2,1]],[[1,2,3],[4,5,6],[7,8,9]]],
-            confidence:0.7
-        })
-        console.log(data,data1)
+        let boxs = data.bboxs
+        console.log(data,boxs)
+        for (var i =0;i<boxs.length;i++){
+            CreateNewResultList(boxs[i][2],boxs[i][3] , "recognize", [boxs[i][0],boxs[i][1]]);
+            DrawSavedAnnotateInfoToShow();
+            ReplaceAnnotateMemory();
+            let index = annotate.current.Arrays.resultIndex - 1;
+            RecordOperation('add', '绘制矩形框', index, JSON.stringify(annotate.current.Arrays.imageAnnotateMemory[index]));
+        }
+
     }
  
     const folderBut = () => {
@@ -91,7 +109,6 @@ export default function LabelDisplay() {
     const changeFolder = (e) => {
         let Files = e.target.files
         imgFiles.current = Files
-        console.log(Files)
         localStorage.clear()
         setimagesList(Array.from(Files))
         imgSum.current = (Files.length);
@@ -161,7 +178,8 @@ export default function LabelDisplay() {
         // task.current.size = "横51.3厘米，纵147.2厘米"
         task.current.time = "北宋"
         task.current.author = "赵佶"
-        task.current.texture = "绢本,横51.3厘米，纵147.2厘米"
+        task.current.texture = "绢本"
+        task.current.size = "横51.3厘米，纵147.2厘米"
         task.current.id = "task" + index
 
         // processIndex.innerText = imgIndex;
@@ -169,13 +187,13 @@ export default function LabelDisplay() {
         let content = localStorage.getItem(task.current.name);
         let img = imgFiles.current[index].name ? window.URL.createObjectURL(imgFiles.current[index]) : imgFiles.current[index];
         content ? SetImage(img, JSON.parse(content)) : SetImage(img);
-
     }
     const SetImage = (src, memory = false) => {
         let _nodes = annotate.current.Nodes;
         _nodes.image = new Image();
         _nodes.image.crossOrigin = 'anonymous';
-        _nodes.image.src = src;
+        _nodes.image.src = src;        
+        console.log(_nodes.image)
         // console.log(src)
         // //监听图片加载
         // _nodes.image.onload = function () {
@@ -249,6 +267,7 @@ export default function LabelDisplay() {
             _nodes.bCtx.drawImage(_nodes.image, 0, 0, annotate.current.iWidth, annotate.current.iHeight);
             _nodes.bCtx.translate(0.5, 0.5);
             document.body.appendChild(_nodes.bCanvas);
+            imgData.current =  _nodes.bCtx.getImageData(0, 0, annotate.current.iWidth, annotate.current.iHeight)
 
             annotate.current.scale = 0.5;
             // 图片初始定位
@@ -1656,6 +1675,99 @@ export default function LabelDisplay() {
         let id = uuid()
         let color = coloring()
         let ent = new Entity("")
+        if(contentType === 'recognize'){
+            let x = annotate.current.x
+            let y = annotate.current.y
+            let sca = annotate.current.scale
+            // let sca = 1
+            
+            // let x = 0
+            // let y = 0
+            let rectMask = {
+                xMin: (p[0])*sca+x,
+                yMin: (p[1])*sca+y,
+                width: (lx - p[0])*sca,
+                height: (ly - p[1])*sca
+            };
+           let  content = [
+                { x: (p[0]) *sca+x, y: (p[1] ) *sca+y },
+                { x: (lx) *sca+x, y: (p[1] ) *sca+y },
+                { x: (lx) *sca+x, y: (ly ) *sca+y },
+                { x: (p[0]) *sca+x, y: (ly ) *sca+y },
+            ]
+        // let rectMask = {
+        //     xMin: p[0],
+        //     yMin: p[1],
+        //     width: lx - p[0],
+        //     height: ly - p[1]
+        // };
+        // let content = [
+        //     { x: p[0], y: p[1] },
+        //     { x: lx, y: p[1] },
+        //     { x: lx, y: ly },
+        //     { x: p[0], y: ly },
+        // ]
+        //     let rectMask = {
+        //         xMin: (p[0])*sca+x,
+        //         yMin: (p[1])*sca+y,
+        //         width: (lx - p[0])*sca,
+        //         height: (ly - p[1])*sca
+        //     };
+        //    let  content = [
+        //         { x: (p[0]) *sca+x, y: (p[1] ) *sca+y },
+        //         { x: (lx) *sca+x, y: (p[1] ) *sca+y },
+        //         { x: (lx) *sca+x, y: (ly ) *sca+y },
+        //         { x: (p[0]) *sca+x, y: (ly ) *sca+y },
+        //     ]
+            let centerP = ComputerCenterPoint(content)
+            let tp = {
+                id: id,
+                content: content,
+                lx: (lx) *sca+x,
+                ly: (ly ) *sca+y,
+                ix: 0,
+                iy: 0,
+                name: "",
+                iWidth: annotate.current.iWidth,
+                iHeight: annotate.current.iHeight,
+                iScale: annotate.current.scale,
+                visAble: true,
+                rgb: color,
+                visibility: _nodes.labelShower.children[0].checked,
+                active: false,
+                describe: "",
+                labels: {
+                    labelName: "",
+                    labelColor: color,
+                    labelColorRGB: color,
+                    visibility: _nodes.labelShower.children[0].checked,
+                },
+                attribute: [],
+                trend: [],
+                color: color,
+                type: "",
+                trendIndex: 0,
+                centerPoint: centerP,
+                labelLocation: ComputerLabelLocation(rectMask),
+                rectMask,
+                contentType: "rect",
+            }
+
+            ent.labels = {
+                labelName: "",
+                labelColor: color,
+                labelColorRGB: color,
+                visibility: _nodes.labelShower.children[0].checked,
+            }
+            ent.centerPoint = centerP
+            ent.x = centerP[0]
+            ent.y = centerP[1]
+            ent.content = content
+            ent.labelLocation = ComputerLabelLocation(rectMask)
+            ent.rectMask = rectMask
+            annotate.current.Arrays.imageAnnotateShower.push(tp)
+            ReplaceAnnotateMemory();
+        }
         if (contentType === "rect") {
 
             let rectMask = {
@@ -2056,48 +2168,45 @@ export default function LabelDisplay() {
         const nextBtn = document.querySelector('.pageNext');                    // 下一张
         const pageName = document.querySelector('.pageName');                   // 标注任务名称
 
-        const toolEntity = document.querySelector('.toolEntity');
-        const toolEntityDiv = document.getElementById('toolEntityDiv')
+        // const toolEntity = document.querySelector('.toolEntity');
+        // const toolEntityDiv = document.getElementById('toolEntityDiv')
 
 
 
-        toolEntity.addEventListener("mouseover", (e) => {
-            toolEntityDiv.style['z-index'] = 9999
-            toolRelationshipDiv.style['z-index'] = -9999
-            toolAttributeDiv.style['z-index'] = -9999
-
-        })
-        toolEntityDiv.addEventListener("mouseleave", (e) => {
-            toolEntityDiv.style['z-index'] = -9999
-        })
-
-        const toolRelationship = document.querySelector('.toolRelationships');
-        const toolRelationshipDiv = document.getElementById('toolRelationshipDiv')
-        toolRelationship.addEventListener("mouseover", (e) => {
-            toolRelationshipDiv.style['z-index'] = 9999
-            toolEntityDiv.style['z-index'] = -9999
-            toolAttributeDiv.style['z-index'] = -9999
-
-        })
-        toolRelationshipDiv.addEventListener("mouseleave", (e) => {
-            toolRelationshipDiv.style['z-index'] = -9999
-        })
-
-        const toolAttribute = document.querySelector('.toolAttribute');
-        const toolAttributeDiv = document.getElementById('toolAttributeDiv')
-        toolAttribute.addEventListener("mouseover", (e) => {
-            toolAttributeDiv.style['z-index'] = 9999
-            toolEntityDiv.style['z-index'] = -9999
-            toolRelationshipDiv.style['z-index'] = -9999
-
-        })
-        toolAttributeDiv.addEventListener("mouseleave", (e) => {
-            toolAttributeDiv.style['z-index'] = -9999
-        })
-
-        // nextBtn.addEventListener('click', function (e) {
+        // toolEntity.addEventListener("mouseover", (e) => {
+        //     toolEntityDiv.style['z-index'] = 9999
+        //     toolRelationshipDiv.style['z-index'] = -9999
+        //     toolAttributeDiv.style['z-index'] = -9999
 
         // })
+        // toolEntityDiv.addEventListener("mouseleave", (e) => {
+        //     toolEntityDiv.style['z-index'] = -9999
+        // })
+
+        // const toolRelationship = document.querySelector('.toolRelationships');
+        // const toolRelationshipDiv = document.getElementById('toolRelationshipDiv')
+        // toolRelationship.addEventListener("mouseover", (e) => {
+        //     toolRelationshipDiv.style['z-index'] = 9999
+        //     toolEntityDiv.style['z-index'] = -9999
+        //     toolAttributeDiv.style['z-index'] = -9999
+
+        // })
+        // toolRelationshipDiv.addEventListener("mouseleave", (e) => {
+        //     toolRelationshipDiv.style['z-index'] = -9999
+        // })
+
+        // const toolAttribute = document.querySelector('.toolAttribute');
+        // const toolAttributeDiv = document.getElementById('toolAttributeDiv')
+        // toolAttribute.addEventListener("mouseover", (e) => {
+        //     toolAttributeDiv.style['z-index'] = 9999
+        //     toolEntityDiv.style['z-index'] = -9999
+        //     toolRelationshipDiv.style['z-index'] = -9999
+
+        // })
+        // toolAttributeDiv.addEventListener("mouseleave", (e) => {
+        //     toolAttributeDiv.style['z-index'] = -9999
+        // })
+
 
 
         annotate.current = annotateTp
@@ -2260,11 +2369,12 @@ export default function LabelDisplay() {
                     {/* <!--标注功能工具集--> */}
                     <div className="toolFeatures">
 
-                        <div className="baseInformation">
                             <div className="baseInformationHead">
                                 <div className="logo"></div>
                                 <h5>Visual Painting Annotation</h5>
                             </div>
+                            {/* <div className="LabelType"> */}
+                        <div className="baseInformation">
                             <div className="infoTitle">古  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;画：
                                 <select className="imgSelect" onChange={imagesChange.bind(this)}>
                                     {imagesList.map((item, index) => {
@@ -2284,7 +2394,9 @@ export default function LabelDisplay() {
                             </div>
                             <div className="infoAuthor">作  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;者：<a>{task.current.author}</a></div>
                             <div className="infoTime">创作时间：<a>{task.current.time}</a></div>
-                            <div className="infoTexture">材质尺寸：<a>{task.current.texture}</a></div>
+                            <div className="infoTexture">材&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;质：<a>{task.current.texture}</a></div>
+                            
+                            <div className="infoSize">尺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;寸：<a>{task.current.size}</a></div>
                             {/* <div className="assistFeatures">
                                 <div className="toolBut openFolder" title="打开文件夹"><img className="toolImg" src={svg_input_url} onClick={() => { folderBut() }} alt="import image"></img></div>
                                 <div className="toolBut saveJson" title="生出Json并保存到本地" onClick={(e) => saveJsonClick(e)}><img className="toolImg" src={svg_download_url} onClick={() => { SetFeatures('rectOn', true) }} alt="import image"></img></div>
@@ -2298,6 +2410,7 @@ export default function LabelDisplay() {
                                     <div className="pageNext pageSwitch inline-block" title="下一张" onClick={(e) => nextImg(e)}></div>
                                 </div>
                             </div> */}
+                        {/* </div> */}
                         </div>
                         {/* <div className="separator"></div> */}
                         <div id="tools">
@@ -2307,7 +2420,7 @@ export default function LabelDisplay() {
                                 <div className="toolsLogo"></div>
                                 <h5>AI-Assisted Annotation</h5>
                             </div>
-
+                            <div className="AITools">
                             <div className="objectDetection">目标检测：
                                 <select className="AIInterfaceSelect" onChange={objectDetectionChange.bind(this)}>
                                     <option value={"Faster-rnn"} key={0}>
@@ -2333,32 +2446,31 @@ export default function LabelDisplay() {
                             <div className="AISelect">图片检索：
                             <input className="AIInterfaceInput"></input>
                             </div>
+                            </div>
+
                             <div className="generalFeatures">
                                 <p className="featureList crossLine" title="十字线开关">
                                     <input className="mui-switch mui-switch-anim" type="checkbox" />
-                                    {/* <span>十字线</span> */}
                                 </p>
                                 <p className="featureList labelShower focus" title="标注结果显示开关">
                                     <input className="mui-switch mui-switch-anim" type="checkbox" />
-                                    {/* <span>标注结果</span> */}
                                 </p>
                                 <p className="featureList screenShot" title="标注内容截图">
                                     <i className="bg"></i>
-                                    {/* <span>快照</span> */}
                                 </p>
                                 <p className="featureList screenFull" title="全屏开关">
                                     <i className="bg"></i>
-                                    {/* <span>全屏</span> */}
                                 </p>
                             </div>
 
                         </div>
                         <div className="scaleList">
-                            <div className="scaleListHead">
+                            {/* <div className="scaleListHead">
                                 <div className="scaleListLogo"></div>
                                 <h5>Scale List</h5>
-                            </div>
-                            <div className="scaleListContain">{formatScaleListData(imagesList)}</div>
+                            </div> */}
+                            <div></div>
+                            <div id="scaleListContain">{formatScaleListData(imagesList)}</div>
                             {/* <div className="scaleCanvas"></div>
                             <div className="scalePanel"></div> */}
                         </div>
@@ -2377,9 +2489,16 @@ export default function LabelDisplay() {
                             <div className="labelHeadToolDiv">
 
                                 <div id="labelHeadTools">
-                                    <div className="labelHeadTool toolZoomIn"></div>
-                                    <div className="labelHeadTool toolZoomOut"></div>
-                                    <div className="labelHeadTool toolRotate"></div>
+                                <div className="toolSet toolRect" title="矩形工具" onClick={(e) => toolClick(e)}>圈选</div>
+                                <div className="toolSet toolPolygon" title="多边形工具">多边形</div>
+                                <div className="toolSet toolRelationship relEvent" title="事件关系" onClick={(e) => toolClick(e)}>事件</div>
+                                <div className="toolSet toolRelationship relPosition" title="方位关系" onClick={(e) => toolClick(e)}>方位</div>
+                                <div className="toolSet toolRelationship relAttribute" title="属性关系" onClick={(e) => toolClick(e)}>属性</div>
+                                   
+                                {/* <div className="labelTool toolEntity"><h5>标记实体</h5></div>
+                                <div className="labelTool toolRelationships"><h5>添加关系</h5></div> */}
+                                {/* <div className="toolSet toolAttribute"><h5>属性工具</h5></div> */}
+                                <div  className="toolSet" id="entityRecognize" onClick={() => { entityRecognize() }} title="打开文件夹"></div>
                                 </div>
                             </div>
                         </div>
@@ -2399,14 +2518,17 @@ export default function LabelDisplay() {
                             <div className="labelToolDiv">
 
                                 <div id="labelTools">
-                                    <div className="labelTool toolEntity"><h5>标记实体</h5></div>
+                                    {/* <div className="labelTool toolEntity"><h5>标记实体</h5></div>
                                     <div className="labelTool toolRelationships"><h5>添加关系</h5></div>
-                                    <div className="labelTool toolAttribute"><h5>属性工具</h5></div>
+                                    <div className="labelTool toolAttribute"><h5>属性工具</h5></div> */}
                                     {/* <div className="toolSet toolDrag focus" title="图片拖拽">拖拽</div> */}
                                     {/* <div className="toolSet toolTagsManager"><span className="icon-tags">取色</span></div> */}
                                     {/* <div className="toolSet toolRelationship" title="关系标注">关系</div> */}
                                     {/* <div className="toolSet toolTrend" title="实体趋势标注">趋势</div> */}
                                     {/* <div className="toolSet toolColor" title="取色器"></div> */}
+                                    <div className="labelHeadTool toolZoomIn"></div>
+                                    <div className="labelHeadTool toolZoomOut"></div>
+                                    <div className="labelHeadTool toolRotate"></div>
                                 </div>
                                 <div id="pageControl">
                                     <div className="pageControl">

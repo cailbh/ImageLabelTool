@@ -8,6 +8,12 @@ import { EntityArray, RelationshipArray } from "../../lib/interface";
 import ColorPicker from "../ColorPicker"
 import { Table, Column, HeaderCell, Cell } from 'rsuite-table';
 import 'rsuite-table/dist/css/rsuite-table.css';
+// import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Row from 'react-bootstrap/Row';
+import 'bootstrap/dist/css/bootstrap.css';
 export default function GraphRelationship(props) {
 
     //编辑实体
@@ -58,6 +64,48 @@ export default function GraphRelationship(props) {
         updateRelationshipArray([...relationshipContext.array])
 
     }
+
+    const rowData=(data)=>{
+        return (
+            data.map((item, index) => {
+                console.log(item)
+                let source = entityContext.array.find((d) => { return d.id == item.sourceId })
+                let target = {name:""}
+                if (item.type != 'root') {
+                source = entityContext.array.find((d) => { return d.id == item.sourceId })
+                target = entityContext.array.find((d) => { return d.id == item.targetId })
+                }
+                    //                         return <input type="text" className = "smallInput" placeholder={'root'} />
+                    //                     }
+                    //                     let source = entityContext.array.find((d) => { return d.id == rowData.sourceId })
+            
+                    //                     return <input type="text" className = "smallInput" placeholder={source.name} onChange={(e) => nameChange(e, rowData.id, "source")} />
+                    //                     // return <p>{source.name} </p>
+                return (
+                    <Row className="align-items-center">
+                        <Col xs="auto" className="relRow relHead">
+                            <input type="text" className = "smallInput" placeholder={source.name} onChange={(e) => nameChange(e, item.id, "source")} />
+                        </Col>
+                        <Col xs="auto" className="relRow relType">
+                        <input type="text" className = "smallInput" placeholder={item.name} onChange={(e) => nameChange(e, item.id, "name")} />
+                        </Col>
+                        <Col xs="auto" className="relRow relTail">
+                            <input type="text" className = "smallInput" placeholder={target.name} onChange={(e) => nameChange(e,item.id, "target")} />
+                        </Col>
+                        <Col xs="auto" className="relRow relTail">
+                            <input type="text" className = "smallInput" placeholder={item.color} onChange={(e) => nameChange(e,item.id, "color")} />
+                        </Col>
+                        <Col xs="auto">
+                        <Button type="primary" className="confirmButton" onClick={() => confirmAttr()}>
+                            确定
+                        </Button>
+                        </Col>
+                    </Row>
+                )
+            })
+        )
+    }
+
     //初始化
     useEffect(() => {
         setTempRelationship(props.relationship)
@@ -66,65 +114,78 @@ export default function GraphRelationship(props) {
         setTempRelationship(props.relationship)
     }, [props.relationship]);
     return (
-        <div id="relationship-table">
-            {/* <ColorPicker></ColorPicker> */}
-            <Table data={dataList.current} className="tableRelationship">
-                <Column width={70} resizable>
-                    <HeaderCell>头</HeaderCell>
-                    {/* <Cell dataKey="name" /> */}
-                    <Cell>
-                        {(rowData, rowIndex) => {
+<div id="relationship-table">
+    <div className="relationship-table-head">
+        <div className="relationship-table-head-co">头</div>
+        <div className="relationship-table-head-co">关系</div>
+        <div className="relationship-table-head-co">尾</div>
+        <div className="relationship-table-head-co">类型</div>
+    </div>
+    <div className="relationship-table-body">
+    <Form>
+      {rowData(dataList.current)}
+    </Form>
+    </div>
+</div>
+        // <div id="relationship-table">
+        //     {/* <ColorPicker></ColorPicker> */}
+        //     <Table data={dataList.current} className="tableRelationship">
+        //         <Column width={70} resizable>
+        //             <HeaderCell>头</HeaderCell>
+        //             {/* <Cell dataKey="name" /> */}
+        //             <Cell>
+        //                 {(rowData, rowIndex) => {
 
-                            if (rowData.type == 'root') {
-                                return <input type="text" id="smallInput" placeholder={'root'} />
-                            }
-                            let source = entityContext.array.find((d) => { return d.id == rowData.sourceId })
+        //                     if (rowData.type == 'root') {
+        //                         return <input type="text" className = "smallInput" placeholder={'root'} />
+        //                     }
+        //                     let source = entityContext.array.find((d) => { return d.id == rowData.sourceId })
 
-                            return <input type="text" id="smallInput" placeholder={source.name} onChange={(e) => nameChange(e, rowData.id, "source")} />
-                            // return <p>{source.name} </p>
-                        }}
-                    </Cell>
-                </Column>
-                <Column width={70} resizable>
-                    <HeaderCell>关系</HeaderCell>
-                    {/* <Cell dataKey="name" /> */}
-                    <Cell>
-                        {(rowData, rowIndex) => {
-                            return <input type="text" id="smallInput" placeholder={rowData.name} onChange={(e) => nameChange(e, rowData.id, "name")} />
-                        }}
-                    </Cell>
-                </Column>
-                <Column width={70} resizable>
-                    <HeaderCell>尾</HeaderCell>
-                    {/* <Cell dataKey="name" /> */}
-                    <Cell>
-                        {(rowData, rowIndex) => {
+        //                     return <input type="text" className = "smallInput" placeholder={source.name} onChange={(e) => nameChange(e, rowData.id, "source")} />
+        //                     // return <p>{source.name} </p>
+        //                 }}
+        //             </Cell>
+        //         </Column>
+        //         <Column width={70} resizable>
+        //             <HeaderCell>关系</HeaderCell>
+        //             {/* <Cell dataKey="name" /> */}
+        //             <Cell>
+        //                 {(rowData, rowIndex) => {
+        //                     return <input type="text" className = "smallInput" placeholder={rowData.name} onChange={(e) => nameChange(e, rowData.id, "name")} />
+        //                 }}
+        //             </Cell>
+        //         </Column>
+        //         <Column width={70} resizable>
+        //             <HeaderCell>尾</HeaderCell>
+        //             {/* <Cell dataKey="name" /> */}
+        //             <Cell>
+        //                 {(rowData, rowIndex) => {
 
-                            if (rowData.type == 'root') {
-                                return <input type="text" id="smallInput" placeholder={'root'} />
-                            }
-                            console.log(rowData, entityContext)
-                            let target = entityContext.array.find((d) => { return d.id == rowData.targetId })
-                            return <input type="text" id="smallInput" placeholder={target.name} onChange={(e) => nameChange(e, rowData.id, "target")} />
-                        }}
-                    </Cell>
-                </Column>
-                <Column width={70} resizable>
-                    <HeaderCell>颜色</HeaderCell>
-                    {/* <Cell dataKey="name" /> */}
-                    <Cell>
-                        {(rowData, rowIndex) => {
-                            return <input type="text" id="smallInput" placeholder={rowData.color} onChange={(e) => nameChange(e, rowData.id, "color")} />
-                        }}
-                    </Cell>
-                </Column>
+        //                     if (rowData.type == 'root') {
+        //                         return <input type="text" className = "smallInput" placeholder={'root'} />
+        //                     }
+        //                     console.log(rowData, entityContext)
+        //                     let target = entityContext.array.find((d) => { return d.id == rowData.targetId })
+        //                     return <input type="text" className = "smallInput" placeholder={target.name} onChange={(e) => nameChange(e, rowData.id, "target")} />
+        //                 }}
+        //             </Cell>
+        //         </Column>
+        //         <Column width={70} resizable>
+        //             <HeaderCell>颜色</HeaderCell>
+        //             {/* <Cell dataKey="name" /> */}
+        //             <Cell>
+        //                 {(rowData, rowIndex) => {
+        //                     return <input type="text" className = "smallInput" placeholder={rowData.color} onChange={(e) => nameChange(e, rowData.id, "color")} />
+        //                 }}
+        //             </Cell>
+        //         </Column>
 
-                <Column width={100} resizable>
-                    <HeaderCell> </HeaderCell>
-                    {/* <Cell dataKey="type" /> */}
-                    <Cell> <Button type="primary" onClick={() => confirmAttr()}>确定</Button></Cell>
-                </Column>
-            </Table>
-        </div >
+        //         <Column width={100} resizable>
+        //             <HeaderCell> </HeaderCell>
+        //             {/* <Cell dataKey="type" /> */}
+        //             <Cell> <Button type="primary" onClick={() => confirmAttr()}>确定</Button></Cell>
+        //         </Column>
+        //     </Table>
+        // </div >
     )
 }

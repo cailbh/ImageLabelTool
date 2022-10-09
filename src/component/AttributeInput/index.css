@@ -1,33 +1,44 @@
 .nameInput{
     margin: 5px;
     height: 60px;
-    border-bottom: 1px #333 solid;
+    border-bottom: 2px rgba(32,99,92,0.3) solid;
 }
 .attrHead{
-    margin: 5px;
+    background-color: rgba(32,99,92,0.3);
+    /* margin: 5px; */
+    color: #fff;
     height: 60px;
-    font-size:15px;
+    font-size:25px;
     line-height:30px;
-    font-family:"Microsoft YaHei",Tahoma,Verdana,SimSun;
-    font-style:normal;
-    font-variant:normal;
-    font-size-adjust:none;
-    font-stretch:normal;
-    font-weight:normal;
-    border-radius: 15px;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+
 }
 .headName{
     float: left;
-    margin: 20px;
-    width: 20%;
+    /* margin: 20px; */
+    padding: 10px;
+    width: 100%;
     font-size:15px;
+    text-align: center;
+    line-height:90px;
+    color: #fff;
+    font-size:25px;
     line-height:30px;
-    font-family:"Microsoft YaHei",Tahoma,Verdana,SimSun;
-    font-style:normal;
-    font-variant:normal;
-    font-size-adjust:none;
-    font-stretch:normal;
-    font-weight:normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
     border-radius: 15px;
 }
 .headValue{
@@ -47,7 +58,7 @@
 .attrInput{
     margin: 5px;
     height: 60px;
-    display: flex;
+    /* display: flex; */
     justify-content: center;
     align-items: center;
 }
@@ -55,20 +66,24 @@
     margin: 5px;
     height: 150px;
     overflow: scroll;
+    scrollbar-width: none;
 }
 .attrKey{
     margin: 6px;
     height: calc(50% - 12px);
     width: 30%;
     float: left;
-    font-size:15px;
-    line-height:30px;
-    font-family:"Microsoft YaHei",Tahoma,Verdana,SimSun;
-    font-style:normal;
-    font-variant:normal;
-    font-size-adjust:none;
-    font-stretch:normal;
-    font-weight:normal;
+    
+text-align: center;
+    color: rgb(32,99,92);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+
     border-radius: 15px;
     /* cursor: none; */
 }
@@ -92,90 +107,32 @@
 }
 
 .valueInput{
-    color:#333;
-    width: 100%;
-    line-height:normal;
-    font-family:"Microsoft YaHei",Tahoma,Verdana,SimSun;
-    font-style:normal;
-    font-variant:normal;
-    font-size-adjust:none;
-    font-stretch:normal;
-    font-weight:normal;
-    margin-top:0px;
-    margin-bottom:0px;
-    margin-left:0px;
-    padding-top:4px;
-    padding-right:4px;
-    padding-bottom:4px;
-    padding-left:4px;
-    font-size:15px;
-    outline-width:medium;
-    outline-style:none;
-    outline-color:invert;
-    border-top-left-radius:3px;
-    border-top-right-radius:3px;
-    border-bottom-left-radius:3px;
-    border-bottom-right-radius:3px;
-    text-shadow:0px 1px 2px #fff;
-    background-attachment:scroll;
-    background-repeat:repeat-x;
-    background-position-x:left;
-    background-position-y:top;
-    background-size:auto;
-    background-origin:padding-box;
-    background-clip:border-box;
-    background-color:rgb(255,255,255);
-    margin-right:8px;
-    border-top-color:#ccc;
-    border-right-color:#ccc;
-    border-bottom-color:#ccc;
-    border-left-color:#ccc;
-    border-top-width:1px;
-    border-right-width:1px;
-    border-bottom-width:1px;
-    border-left-width:1px;
-    border-top-style:solid;
-    border-right-style:solid;
-    border-bottom-style:solid;
-    border-left-style:solid;
+    width: 90%;
+    border-radius: 10px;
+    border: 1.5px #ccc solid;
+    margin: 1px;
+    /* margin-left: 15px; */
+    color: rgb(32,99,92);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
 }
 .keyInput{
-    color:#333;
     width: 90%;
-    line-height:normal;
-    font-family:"Microsoft YaHei",Tahoma,Verdana,SimSun;
-    font-style:normal;
-    font-variant:normal;
-    font-size-adjust:none;
-    font-stretch:normal;
-    font-weight:normal;
-    margin: 0px;
-    padding: 4px;
-    font-size:15px;
-    outline-width:medium;
-    outline-style:none;
-    outline-color:invert;
-    border-radius: 15px;
-    text-shadow:0px 1px 2px #fff;
-    background-attachment:scroll;
-    background-repeat:repeat-x;
-    background-position-x:left;
-    background-position-y:top;
-    background-size:auto;
-    background-origin:padding-box;
-    background-clip:border-box;
-    background-color:rgb(255,255,255);
-    margin-right:8px;
-    border-top-color:#ccc;
-    border-right-color:#ccc;
-    border-bottom-color:#ccc;
-    border-left-color:#ccc;
-    border-top-width:1px;
-    border-right-width:1px;
-    border-bottom-width:1px;
-    border-left-width:1px;
-    border-top-style:solid;
-    border-right-style:solid;
-    border-bottom-style:solid;
-    border-left-style:solid;
+    border-radius: 10px;
+    border: 1.5px #ccc solid;
+    margin: 1px;
+    /* margin-left: 15px; */
+    color: rgb(32,99,92);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
 }

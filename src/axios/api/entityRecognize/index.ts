@@ -18,11 +18,7 @@ export default{
     },
     //目标检测
     async entityRecognizeApi(params){
-        return await axios.post(`${base}/predict_bbx`,params,{
-            headers:{
-                "token":cookie.load("usertoken")
-            }
-        }).then((res)=>{
+        return await axios.post(`${base}/predict_bbx`,params).then((res)=>{
             return res.data;
         }).catch((error)=>{
             message.error("服务器出错")

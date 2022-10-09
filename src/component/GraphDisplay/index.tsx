@@ -293,7 +293,7 @@ export default function GraphDisplay() {
     }
     const showRelationshipAttribute = (relationships) => {
 
-        if (relationships.length == 0) return <>暂无数据</>;
+        // if (relationships.length == 0) return <>暂无数据</>;
         // return relationships.map((relationship) => {
         return (
             <GraphRelationship relationship={relationships} ></GraphRelationship >
@@ -363,7 +363,7 @@ export default function GraphDisplay() {
                 let tar = e.target as Element
                 switch (true) {
                     case tar.className.indexOf('layout') < 0:
-                        toolLayoutDiv.style['z-index'] = -9999
+                        // toolLayoutDiv.style['z-index'] = -9999
                         break;
                     default:
                         break
@@ -1068,10 +1068,10 @@ export default function GraphDisplay() {
                                     <div className="graphTool toolLayout " title="更改布局"><h5 className="layout">布局</h5></div>
                                     <div className="graphTool toolDrop" title="拖拽实体"><h5 className="drop ">拖拽</h5></div>
                                     <div className="graphTool toolEdit" title="编辑图谱"><h5 className="edit">编辑</h5></div>
-                                    <div className="graphTool toolAdd " title="增加"><h5 className="add">增加</h5></div>
-                                    <div className="graphTool toolDel" title="删除"><h5 className="del">删除</h5></div>
-                                    <div className="graphTool toolUndo" title="撤消"><h5 className="undo">撤消</h5></div>
-                                    <div className="graphTool toolRedo" title="恢复"><h5 className="redo">恢复</h5></div>
+                                    {/* <div className="graphTool toolAdd " title="增加"><h5 className="add">增加</h5></div> */}
+                                    {/* <div className="graphTool toolDel" title="删除"><h5 className="del">删除</h5></div> */}
+                                    {/* <div className="graphTool toolUndo" title="撤消"><h5 className="undo">撤消</h5></div> */}
+                                    {/* <div className="graphTool toolRedo" title="恢复"><h5 className="redo">恢复</h5></div> */}
                                     <div className="graphTool toolPrint" title="打印图谱"><h5 className="print">打印</h5></div>
                                 </div>
                             </div>
@@ -1093,9 +1093,9 @@ export default function GraphDisplay() {
                         </div>
                     </div>
                     <div id="attributeDiv">
-                        <div id="attributeBox"  >
+                        {/* <div id="attributeBox"  >
                             {showEntityAttribute(currentEntity)}
-                        </div>
+                        </div> */}
                         <div id="relationshipBox"  >
                             {showRelationshipAttribute(relationshipContext.array)}
                         </div>
