@@ -24,7 +24,7 @@ export default function UI() {
                             {/* <ImageView></ImageView> */}
 
                             <LabelView></LabelView>
-                            <GraphView></GraphView>
+                            {/* <GraphView></GraphView> */}
                         </MemoArrayContextProvider>
                     </ EntityArrayContextProvider >
                 </RelationshipArrayContextProvider>

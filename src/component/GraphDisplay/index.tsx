@@ -628,7 +628,10 @@ export default function GraphDisplay() {
                             .attr("cx", element.x)
                             .attr("cy", element.y)
                             .attr("r", rSize)
-                            .attr("fill", "url(#pic" + i + ")")
+                            // .attr("fill", "url(#pic" + i + ")")
+                            .attr("fill",element.color)
+                            .attr("opacity","0.2")
+                            .attr("stroke", "#000")
                             .on("click", (d) => {
                                 entityClick(d)
                             })
