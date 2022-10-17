@@ -206,6 +206,7 @@ export default function LabelDisplay() {
         var name = imgFiles.current[index]['name']
         // task.current.name = (name)
         updateEntityArray([])
+        updateRelationshipArray([])
         relationshipArray.current = []
         task.current.name = "听琴图" + index
         // task.current.size = "横51.3厘米，纵147.2厘米"
@@ -1172,6 +1173,29 @@ export default function LabelDisplay() {
         attributesTp.current = attr
     }
 
+    //属性修改确定
+    const changeAttributeConfirm = ()=>{
+        let attributeInputDiv = document.getElementById('attributeInputDiv');
+        annotate.current.Arrays.resultIndex = annotate.current.Arrays.imageAnnotateShower.length
+            let index = annotate.current.Arrays.resultIndex - 1;
+            annotate.current.Arrays.imageAnnotateShower[index].name = nameTp.current
+            annotate.current.Arrays.imageAnnotateShower[index].attribute = attributesTp.current
+            annotate.current.Arrays.resultIndex = 0
+            let id = annotate.current.Arrays.imageAnnotateShower[index].id
+            let ent = entityContext.array.find(function (d) { return d.id == id })
+            ent.name = nameTp.current
+            ent.attribute = attributesTp.current
+            ReplaceAnnotateMemory()
+            DrawSavedAnnotateInfoToShow()
+            // nameTp.current = ""
+            // attributesTp.current = []
+            // canvasArea.removeChild(input);
+            // canvasArea.removeChild(attributeInputDiv)
+
+            attributeInputDiv.style['z-index'] = '-9999'
+            // attributeInputDiv.removeChild(confirmDiv)
+    }
+
     //----绘制矩形时鼠标抬起后移除监听函数
     const MouseUpRemoveDrawRect = () => {
 
@@ -1209,9 +1233,9 @@ export default function LabelDisplay() {
         attributeInputDiv.style.height = '300px'
         // attributeInputDiv = return (<div>111</div>)
 
-        let confirmDiv = document.createElement('div');
-        confirmDiv.className = 'confirmDiv'
-        attributeInputDiv.appendChild(confirmDiv)
+        // let confirmDiv = document.createElement('div');
+        // confirmDiv.className = 'confirmDiv'
+        // attributeInputDiv.appendChild(confirmDiv)
 
 
         // let input = document.createElement('input');
@@ -1222,28 +1246,9 @@ export default function LabelDisplay() {
         // // input.style.top = minP[1] + (maxP[1] - minP[1]) / 2 - 25 + 'px'
         // input.style.fontSize = `${parseInt(input.style.height) / 2}px`;
         // attributeInputDiv.appendChild(input)
-        confirmDiv.addEventListener("click", (e) => {
-            // input.blur()
-            // attributeInputDiv.style.opacity = '0'
-            annotate.current.Arrays.resultIndex = annotate.current.Arrays.imageAnnotateShower.length
-            let index = annotate.current.Arrays.resultIndex - 1;
-            annotate.current.Arrays.imageAnnotateShower[index].name = nameTp.current
-            annotate.current.Arrays.imageAnnotateShower[index].attribute = attributesTp.current
-            annotate.current.Arrays.resultIndex = 0
-            let id = annotate.current.Arrays.imageAnnotateShower[index].id
-            let ent = entityContext.array.find(function (d) { return d.id == id })
-            ent.name = nameTp.current
-            ent.attribute = attributesTp.current
-            ReplaceAnnotateMemory()
-            DrawSavedAnnotateInfoToShow()
-            nameTp.current = ""
-            attributesTp.current = []
-            // canvasArea.removeChild(input);
-            // canvasArea.removeChild(attributeInputDiv)
-
-            attributeInputDiv.style['z-index'] = '-9999'
-            attributeInputDiv.removeChild(confirmDiv)
-        })
+        // confirmDiv.addEventListener("click", (e) => {
+        //     changeAttributeConfirm();
+        // })
         // input.addEventListener('input', (e) => {
         //     const target = e.target as HTMLTextAreaElement;
         //     annotate.current.inputs = target.value
@@ -2139,8 +2144,6 @@ export default function LabelDisplay() {
                 SetFeatures('rectOn', true);
                 break;
             case tar.className.indexOf('toolPolygon') > -1:  // 多边形
-                // SetFeatures('polygonOn', true);
-                console.log("12313")
                 changeGeneralLayout()
                 break;
             case tar.className.indexOf('toolTagsManager') > -1:  // 标签管理工具
@@ -2229,7 +2232,6 @@ export default function LabelDisplay() {
                     // var rSize = 50
                     // var smallCircles = svg.select(".smallCircle" + element.id)
                     //     .attr("opacity", 1)
-
                 }
                 else
                     arr[index].active = false
@@ -2242,15 +2244,15 @@ export default function LabelDisplay() {
             }
         }
 
+        // var sPathD = d3
+        //     .selectAll("[class*=" + "sD-" + item.id + "]")
+        //     .style("display", "block")
 
-        // console.log(item, entityArray, entityContext, entityTp)
-        var sPathD = d3
-            .selectAll("[class*=" + "sD-" + item.id + "]")
-            .style("display", "block")
+        // var tPathD = d3
+        //     .selectAll("[class*=" + "tD-" + item.id + "]")
+        //     .style("display", "block")
 
-        var tPathD = d3
-            .selectAll("[class*=" + "tD-" + item.id + "]")
-            .style("display", "block")
+
         if (toolType == 0) {
             d3.select("#graphSvg").style("cursor", "move")
         }
@@ -2357,15 +2359,16 @@ export default function LabelDisplay() {
             let svgWidth = chart.current.clientWidth
             let svgHeight = chart.current.clientHeight
             let rSize = 60
-            var graphsvg = d3.select('#graph').select("#graphSvg").select("#entityGraph")
-            graphsvg.select('#entityG').remove()
-            var svg = graphsvg.append("g")
+            var graphsvg =  d3.select('#graph').select("#graphSvg")
+            var entSvg = graphsvg.select("#entityGraph")
+            entSvg.select('#entityG').remove()
+            var svg = entSvg.append("g")
                 .attr("id", "entityG")
                 .attr("width", svgWidth)
                 .attr("height", svgHeight)
 
 
-            var relGraphsvg = d3.select('#graph').select("#graphSvg").select("#relationshipGraph")
+            var relGraphsvg = graphsvg.select("#relationshipGraph")
             relGraphsvg.select('#relationshipG').remove()
             var relSvg = relGraphsvg.append("g")
                 .attr("id", "relationshipG")
@@ -2469,6 +2472,47 @@ export default function LabelDisplay() {
                             })
                     }
                 });
+
+            var graphZoom = d3.zoom()
+                .scaleExtent([0.1, 10])
+                .on('zoom', (e) => {
+                   entSvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ') scale(' + e.transform.k + ')'
+                    )
+                   relGraphsvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ') scale(' + e.transform.k + ')'
+                    )
+                })
+                .on('end', (e) => {
+                    entSvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ') scale(' + e.transform.k + ')'
+                    )
+                    relGraphsvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ') scale(' + e.transform.k + ')'
+                    )
+                });
+            var graphDrag = d3.drag()
+                .on('drag', (e) => {
+                    entSvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ')'
+                    )
+                    relGraphsvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ')'
+                    )
+                })
+                .on('end', (e) => {
+                    entSvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ')'
+                    )
+                    relGraphsvg.attr('transform',
+                        'translate(' + e.transform.x + ',' + e.transform.y + ')'
+                    )
+                });
+            
+                graphsvg.call(graphZoom).call(graphDrag)
+                // .call(graphZoom.transform, d3.zoomIdentity.scale(1))
+
+
             if (layoutType == 0 || layoutType == 2) {
                 for (let i = 0; i < entityContext.array.length; i++) {
                     const element = entityContext.array[i];
@@ -2485,6 +2529,7 @@ export default function LabelDisplay() {
                         var startR = -Math.PI / 2
                         var elementAttribute = element.attribute
                         var len = elementAttribute.length
+                        //显示属性
                         if (focusEntId.current == element.id) {
                             while (k < len) {
                                 var t = startR + k * stepR
@@ -2876,16 +2921,8 @@ export default function LabelDisplay() {
 
         
     }
-    
-    //图谱初始化
-    const init = () => {
-        entityArray.current = []
-        relationshipArray.current = []
 
-        delEntityArray.current = []
-        delRelationshipArray.current = []
-
-        // setToolType(-1)
+    const initGraphSvg = ()=>{
         let svgWidth = chart.current.clientWidth
         let svgHeight = chart.current.clientHeight
         let rSize = 30
@@ -2909,6 +2946,18 @@ export default function LabelDisplay() {
             .append("g")
             .attr("id", "entityG")
         var defs = svg.append('defs')
+    }
+    
+    //图谱初始化
+    const init = () => {
+        entityArray.current = []
+        relationshipArray.current = []
+
+        delEntityArray.current = []
+        delRelationshipArray.current = []
+
+        // setToolType(-1)
+       initGraphSvg()
 
 
         changeActive.current = 0
@@ -3000,6 +3049,12 @@ export default function LabelDisplay() {
             }
         })
     }
+    const formatAttr = (name,attrs)=>{
+        console.log(name,attrs)
+        return(
+            <AttributeInput name={name} attributes={attrs} changeName={changeName} changeAttributes={changeAttributes} confirm ={changeAttributeConfirm} ></AttributeInput>   
+        )
+    }
 
 
     //切换页面布局
@@ -3021,6 +3076,11 @@ export default function LabelDisplay() {
         imgWin.className = 'horizontal_imagDiv'
         let graphWin = document.getElementById('graphRoot');
         graphWin.className = 'horizontal_graphRoot'
+
+        initGraphSvg()
+
+        annotate.current.Arrays.imageAnnotateMemory.length > 0 && localStorage.setItem(task.current.name, JSON.stringify(annotate.current.Arrays));  // 保存已标定的图片信息
+
         selectImage(imgIndex.current - 1)
         DrawSavedAnnotateInfoToShow()
         drawGraph()
@@ -3261,7 +3321,7 @@ export default function LabelDisplay() {
                         {/* </div> */}
                         </div>
                         {/* <div className="separator"></div> */}
-                        <div id="tools">
+                        {/* <div id="tools">
 
 
                             <div className="toolsHead">
@@ -3311,6 +3371,14 @@ export default function LabelDisplay() {
                                 </p>
                             </div>
 
+                        </div> */}
+                        <div id="attrDiv">
+        
+                                <p className="featureList labelShower focus" title="标注结果显示开关">
+                                    <input className="mui-switch mui-switch-anim" type="checkbox" />
+                                </p>
+                            {formatAttr(nameTp.current,attributesTp.current)}
+                            {/* <AttributeInput name={nameTp.current} attributes={attributesTp.current} changeName={changeName} changeAttributes={changeAttributes}></AttributeInput> */}
                         </div>
                         <div className="scaleList">
                             {/* <div className="scaleListHead">
@@ -3353,7 +3421,7 @@ export default function LabelDisplay() {
                         <div id="canvasContent" className="canvasContent">
                             <canvas  id="canvas"></canvas>
                             <div id="attributeInputDiv">
-                                <AttributeInput name={nameTp.current} attributes={attributesTp.current} changeName={changeName} changeAttributes={changeAttributes}></AttributeInput>
+                                <AttributeInput name={nameTp.current} attributes={attributesTp.current} changeName={changeName} changeAttributes={changeAttributes} confirm = {changeAttributeConfirm}></AttributeInput>
                             </div>
                             <div className="scaleBox">
 

@@ -6,6 +6,7 @@ import url_addAttr from "../../assets/imgs/addAttr.svg"
 interface AttributeInputProps {
     name: string;
     changeName: any;
+    confirm: any;
     attributes: any;
     changeAttributes: any;
     children?: React.ReactNode;
@@ -37,6 +38,10 @@ export default class AttributeInput extends React.Component<AttributeInputProps,
             }
         }
         return null
+    }
+
+    confirm = ()=>{
+        this.props.confirm()
     }
 
     nameChange = (e, tp) => {
@@ -124,7 +129,7 @@ export default class AttributeInput extends React.Component<AttributeInputProps,
     render() {
         const data = this.props
         return (
-            <div>
+            <div className='contain'>
                 <div className="attrHead">
                     <div className="headName">添加属性</div>
                     {/* <div className='headValue'>属性值</div>
@@ -139,6 +144,7 @@ export default class AttributeInput extends React.Component<AttributeInputProps,
                     {this.nameInput(this.state.name)}
                 </div>
                 {this.attrInput(this.state.attributes)}
+                <div className='confirmDiv'onClick={() => { this.confirm() }}></div>
             </div>
         )
     }

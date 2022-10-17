@@ -68,6 +68,7 @@ export default function GraphRelationship(props) {
     const rowData=(data)=>{
         return (
             data.map((item, index) => {
+                console.log(entityContext.array,item)
                 let source = entityContext.array.find((d) => { return d.id == item.sourceId })
                 let target = {name:""}
                 if (item.type != 'root') {

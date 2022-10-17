@@ -3,11 +3,14 @@
     height: 60px;
     border-bottom: 2px rgba(32,99,92,0.3) solid;
 }
+.contain{
+    height: 100%;
+}
 .attrHead{
     background-color: rgba(32,99,92,0.3);
     /* margin: 5px; */
     color: #fff;
-    height: 60px;
+    height: 40px;
     font-size:25px;
     line-height:30px;
     font-weight: 600;
@@ -64,7 +67,7 @@
 }
 .attrInputDiv{
     margin: 5px;
-    height: 150px;
+    height: calc(100% - 160px);
     overflow: scroll;
     scrollbar-width: none;
 }

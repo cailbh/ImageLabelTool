@@ -11,14 +11,14 @@ text-align: left;
 position: relative;
 }
 .graphRoot{
-    background: rgb(237,241,241);
+    background: rgba(237,241,241,0);
     position: relative;
     height: 100%;
-    width: calc(40% - 4px);
+    width: calc(40% - 10px);
     float: left;
 }
 .horizontal_graphRoot{
-    background: rgb(237,241,241);
+    background: rgba(237,241,241,0);
     position: relative;
     height: 45%;
     width: calc(100% - 254px);
@@ -29,8 +29,8 @@ position: relative;
     height: calc(100% - 0px);
     float: left;
     width: calc(100% - 0px);
-    background: rgb(237,241,241);
-    padding: 10px;
+    background: rgba(237,241,241,0);
+    /* padding: 10px; */
 }
 .graphHead{
     width: 100%;
@@ -110,15 +110,15 @@ position: relative;
     /* background: url(../../assets/imgs/toolsback.png) no-repeat 0 0;
     background-size: 100%; */
     /* background: #fff; */
-    background: rgb(237,241,241);
+    background: rgba(237,241,241,0);
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     border-radius: 5px;
     /* display: inline-block; */
     width: calc(100% - 24px);
-    margin: 2px;
-    height: calc(30% - 4px);
+    margin: 5px;
+    height: calc(30% - 0px);
     margin-top: 10px;
     /* border-image: url(../../assets/imgs/scaleCanvas.png); */
     border-image-slice: 151;
@@ -129,40 +129,33 @@ position: relative;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     float: left;
-
-    /* filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4);
-    -moz-box-shadow: -2px -2px 10px #909090;
-    -webkit-box-shadow: -2px -2px 10px #909090;
-    box-shadow:-2px -2px 10px #909090; */
+    
+    border: 2px solid rgb(204,221,224);
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4);
+    -moz-box-shadow: 0px 2px 10px #909090;
+    -webkit-box-shadow: 0px 2px 10px #909090;
+    box-shadow:0px 2px 2px #909090
 }
 #graphDiv{
     /* background: url(../../assets/imgs/toolsback.png) no-repeat 0 0;
     background-size: 100%; */
-    background: rgb(237,241,241);
+    background: rgba(237,241,241,0);
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     border-radius: 5px;
     /* display: inline-block; */
     width: calc(100% - 24px);
-    /* margin: 2px; */
-    margin-bottom: 10px;
+    margin: 5px;
+    /* margin-bottom: 10px; */
     height: calc(70% - 24px);
-    /* border-image: url(../../assets/imgs/scaleCanvas.png); */
-    border-image-slice: 151;
-    border-image-width: 20px 1px;
     border-radius: 5px;
     float: left;
-
-    /* border: 1px solid #b8becc; */
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-
-    /* filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4);
-    -moz-box-shadow: -2px 2px 10px #909090;
-    -webkit-box-shadow: -2px 2px 10px #909090;
-    box-shadow:-2px 2px 10px #909090; */
+    border: 2px solid rgb(204,221,224);
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4);
+    -moz-box-shadow: 0px 2px 10px #909090;
+    -webkit-box-shadow: 0px 2px 10px #909090;
+    box-shadow:0px 2px 2px #909090
 }
 #attributeBox{
     width: calc(50% - 4px);
