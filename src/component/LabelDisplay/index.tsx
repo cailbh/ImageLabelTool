@@ -40,6 +40,23 @@ export default function LabelDisplay() {
     let update = useRef(null)
     let task = useRef<Task | null>(new Task({}))
 
+    const mcolor= [
+        "rgb(255,60,60)",
+        "rgb(155,20,100)",
+        "rgb(255,83,255)",
+        "rgb(200,100,50)",
+        "rgb(235,135,162)",
+        "rgb(200,200,102)",
+        "rgb(255,178,101)",
+        "rgb(63,151,134)",
+        "rgb(83,155,255)",
+        "rgb(50,200,120)",
+        "rgb(2,50,200)",
+        "rgb(0,122,244)",
+        "rgb(150,122,244)",
+        "rgb(168,168,255)",
+        "rgb(200,200,200)",
+      ];
     //实体列表
     let entityArray = useRef(null)
     //实体关系列表
@@ -453,9 +470,13 @@ export default function LabelDisplay() {
     const DrawRect = (ctx, x, y, width, height, color, rgb) => {
         ctx.lineWidth = annotate.current.lineWidth
         ctx.strokeStyle = color;
-        // ctx.fillStyle = "rgba(" + rgb + "," + annotate.current.opacity + ")";
+        
+        ctx.globalAlpha = 0.1
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+        ctx.globalAlpha = 0.6
         ctx.strokeRect(x, y, width, height);
-        // ctx.fillRect(x, y, width, height);
+        ctx.globalAlpha = 1
     };
 
     //----绘制圆点的方法
@@ -474,10 +495,12 @@ export default function LabelDisplay() {
     const DrawRectLabel = (ctx, x, y, color, name, index) => {
         ctx.font = "12px Verdana";
         let txtWidth = ctx.measureText(name).width;
-        ctx.fillStyle = "rgba(255,255,255, 0.7)";
-        ctx.fillRect(x - txtWidth / 2 - 8, y - 10, txtWidth + 16, 20);
         ctx.fillStyle = color;
-        ctx.fillText(name, x - txtWidth / 2, y + 4);
+        ctx.globalAlpha = 0.6
+        ctx.fillRect(x , y - 20, txtWidth + 8, 20);
+        ctx.globalAlpha = 1
+        ctx.fillStyle = "rgba(255,255,255, 0.7)";
+        ctx.fillText(name, x+4 , y - 5);
     };
 
 
@@ -544,7 +567,7 @@ export default function LabelDisplay() {
                 // && item.labels.visibility
             ) {
                 // 绘制标签
-                DrawRectLabel(_nodes.ctx, item.lx, item.ly, item.color, item.name, index + 1);
+                DrawRectLabel(_nodes.ctx,item.rectMask.xMin, item.rectMask.yMin, item.color, item.name, index + 1);
             }
             // 绘制矩形蒙层
 
@@ -2362,6 +2385,11 @@ export default function LabelDisplay() {
             var graphsvg =  d3.select('#graph').select("#graphSvg")
             var entSvg = graphsvg.select("#entityGraph")
             entSvg.select('#entityG').remove()
+            entSvg.select('#attrG').remove()
+            var attrSvg = entSvg.append("g")
+                .attr("id", "attrG")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight)
             var svg = entSvg.append("g")
                 .attr("id", "entityG")
                 .attr("width", svgWidth)
@@ -2525,42 +2553,58 @@ export default function LabelDisplay() {
 
                         var smallR = 10
                         var k = 0
-                        var stepR = Math.PI / 5
                         var startR = -Math.PI / 2
                         var elementAttribute = element.attribute
                         var len = elementAttribute.length
+                        var stepR = Math.PI *2 / len
                         //显示属性
                         if (focusEntId.current == element.id) {
                             while (k < len) {
                                 var t = startR + k * stepR
+                                var dataset = { startAngle: startR + (k-1) * stepR , endAngle: t}; //创建一个弧生成器
+                                var arcPath = d3.arc()
+                                            .innerRadius(rSize)
+                                            .outerRadius(rSize+5);
                                 var x = element.x + (rSize + smallR) * Math.cos(t)
                                 var y = element.y + (rSize + smallR) * Math.sin(t)
-                                var smallCircle = svg.append("circle")
-                                    .attr("id", element.id + "_" + k)
-                                    .attr("class", "smallCircle" + element.id)
-                                    .attr("cx", x)
-                                    .attr("cy", y)
-                                    .attr("r", 10)
-                                    // .attr("opacity", 0)
-                                    .attr("fill", "rgb(0,0,0,0)")
-                                    .attr("stroke-width", 2)
-                                    .attr("stroke", element.color)
-                                    .on("click", function (d) {
-                                        attrClick(d, element.id, k)
-                                    })
-                                var attrKey = svg.append("text")
-                                    .attr("id", "t_" + element.id + "_" + k)
-                                    .attr("class", "text_attr" + element.id)
-                                    .attr("x", x + (15))
-                                    .attr("y", y)
-                                    .attr("opacity", 1)
-                                    .text(elementAttribute[k].attrKey + ": " + elementAttribute[k].attrValue)
+                                var attr = attrSvg.append("path")
+                                            .attr("d",arcPath(dataset))	
+                                            .attr("transform","translate("+element.x+","+element.y+")")
+                                            .attr("stroke",element.color)
+                                            .attr("stroke-width","0.5px")
+                                            .attr("fill",mcolor[k]);
+                                
+                                // 圆圈
+                                // var x = element.x + (rSize + smallR) * Math.cos(t)
+                                // var y = element.y + (rSize + smallR) * Math.sin(t)
+                                // var smallCircle = svg.append("circle")
+                                //     .attr("id", element.id + "_" + k)
+                                //     .attr("class", "smallCircle" + element.id)
+                                //     .attr("cx", x)
+                                //     .attr("cy", y)
+                                //     .attr("r", 10)
+                                //     // .attr("opacity", 0)
+                                //     .attr("fill", "rgb(0,0,0,0)")
+                                //     .attr("stroke-width", 2)
+                                //     .attr("stroke", element.color)
+                                //     .on("click", function (d) {
+                                //         attrClick(d, element.id, k)
+                                //     })
+                                // var attrKey = svg.append("text")
+                                //     .attr("id", "t_" + element.id + "_" + k)
+                                //     .attr("class", "text_attr" + element.id)
+                                //     .attr("x", x + (15))
+                                //     .attr("y", y)
+                                //     .attr("opacity", 1)
+                                //     .text(elementAttribute[k].attrKey + ": " + elementAttribute[k].attrValue)
                                 // .on("mouseover", function (d) {
                                 //     entityMouseOver(d)
                                 // })
                                 // .on("mouseout", function (d) {
                                 //     entityMouseOut(d)
                                 // })
+
+
                                 k = k + 1
                             }
                         }
