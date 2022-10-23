@@ -41,6 +41,7 @@ export class Entity {
     describe: string;
     attribute: any;
     active: boolean;
+    children: any;
     constructor(myName: string) { //定义带参数的构造函数
         this.name = myName;
     }

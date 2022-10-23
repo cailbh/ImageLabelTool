@@ -25,6 +25,7 @@ import { start } from "repl";
 import entityRecognize from "../../axios/api/entityRecognize";
 // import imgimg from "../img";
 import axios from '../../axios/index'
+import { text } from "stream/consumers";
 
 const d3 = require('d3')
 
@@ -467,10 +468,9 @@ export default function LabelDisplay() {
 
 
     //----绘制矩形的方法
-    const DrawRect = (ctx, x, y, width, height, color, rgb) => {
-        ctx.lineWidth = annotate.current.lineWidth
+    const DrawRect = (ctx, x, y, width, height, color,lineWidth, rgb) => {
+        ctx.lineWidth = lineWidth
         ctx.strokeStyle = color;
-        
         ctx.globalAlpha = 0.1
         ctx.fillStyle = color;
         ctx.fillRect(x, y, width, height);
@@ -523,6 +523,7 @@ export default function LabelDisplay() {
 
         var indexs = []
         _arrays.imageAnnotateShower.forEach((item, index) => {
+            if(item.showLabel==true){
             item['trend'] = item.trend
             item.lx = item.centerPoint[0]
             item.ly = item.centerPoint[1]
@@ -540,6 +541,24 @@ export default function LabelDisplay() {
                     }
                 }
             })
+            console.log(item.children)
+            var step = 0
+            item.children.forEach((Item, Index) => {
+                //绘制子标签
+                let name = Index
+                let x = item.rectMask.xMin +step 
+                let y = item.rectMask.yMin
+                let ctx = _nodes.ctx
+                ctx.font = "12px Verdana";
+                let txtWidth = ctx.measureText(name).width;
+                ctx.fillStyle = item.color;
+                ctx.globalAlpha = 0.6
+                ctx.fillRect(x , y - 20, txtWidth + 8, 20);
+                ctx.globalAlpha = 1
+                ctx.fillStyle = "rgba(255,255,255, 0.7)";
+                ctx.fillText(name, x+4 , y - 5);
+                step = step + txtWidth+8
+            })
             if (item.contentType === "polygon") {
                 // 绘制闭合线条
                 _nodes.ctx.beginPath();
@@ -554,7 +573,7 @@ export default function LabelDisplay() {
                 _nodes.ctx.stroke();
             }
             else if (item.contentType === "rect") {
-                DrawRect(_nodes.ctx, item.rectMask.xMin, item.rectMask.yMin, item.rectMask.width, item.rectMask.height, item.color, item.rgb);
+                DrawRect(_nodes.ctx, item.rectMask.xMin, item.rectMask.yMin, item.rectMask.width, item.rectMask.height, item.color,1, item.rgb);
             }
             if (_arrays.resultIndex !== 0 && _arrays.resultIndex - 1 === index) {
                 item.content.forEach((circle) => {
@@ -573,14 +592,14 @@ export default function LabelDisplay() {
 
             if (item.active) {
                 _nodes.ctx.beginPath();
-                _nodes.ctx.lineWidth = 1;
-                _nodes.ctx.strokeStyle = "#fffd4d";
-                _nodes.ctx.fillStyle = "rgba(255, 253, 77, 0.3)";
+                _nodes.ctx.lineWidth = 3;
+                _nodes.ctx.strokeStyle = item.color;
+                _nodes.ctx.fillStyle = "rgba(255, 253, 77, 0)";
                 _nodes.ctx.strokeRect(item.rectMask.xMin, item.rectMask.yMin, item.rectMask.width, item.rectMask.height);
                 _nodes.ctx.fillRect(item.rectMask.xMin, item.rectMask.yMin, item.rectMask.width, item.rectMask.height);
                 _nodes.ctx.closePath();
             }
-            // }
+            }
         });
         // indexs.forEach((i, ind) => {
         //     _arrays.imageAnnotateShower.splice(i - ind, 1)
@@ -639,7 +658,7 @@ export default function LabelDisplay() {
                     _nodes.bCtx.stroke();
                 }
                 else if (item.contentType === "rect") {
-                    DrawRect(_nodes.bCtx, item.rectMask.xMin, item.rectMask.yMin, item.rectMask.width, item.rectMask.height, item.color, item.rgb);
+                    DrawRect(_nodes.bCtx, item.rectMask.xMin, item.rectMask.yMin, item.rectMask.width, item.rectMask.height, item.color,1, item.rgb);
                 }
 
                 _arrays.relationshipAnnotateShower.forEach((item, index) => {
@@ -938,6 +957,7 @@ export default function LabelDisplay() {
             DrawSavedAnnotateInfoToShow()
             if (_arrays.resultIndex !== 0) {
                 let imageIndex = _arrays.imageAnnotateShower[_arrays.resultIndex - 1].content;
+                let ent = _arrays.imageAnnotateShower[_arrays.resultIndex - 1]
                 if (imageIndex.length > 0) {
                     for (let i = 0; i < imageIndex.length; i++) {
                         // 使用勾股定理计算鼠标当前位置是否处于当前点上
@@ -983,6 +1003,19 @@ export default function LabelDisplay() {
                         }
                     }
                 }
+                console.log(ent,annotate.current.mouseX,annotate.current.mouseY)
+                let distanceFromLabel = Math.sqrt(Math.pow(ent.lx - annotate.current.mouseX, 2) + Math.pow(ent.ly - annotate.current.mouseY, 2));
+                if ((distanceFromLabel <= ent.rectMask.width)&&(distanceFromLabel <= ent.rectMask.height)) {
+                    console.log("dasdas")
+                    annotate.current.isDragCircle = true;
+                    annotate.current.sourceIndex = annotate.current.Arrays.resultIndex
+                    annotate.current.Nodes.canvas.addEventListener('mousemove', DragLabel);
+                    annotate.current.Nodes.canvas.addEventListener('mouseup', RemoveDragLabel);
+                }
+                else {
+                    annotate.current.isDragCircle = false;
+                }
+
             }
             if (!annotate.current.isDragCircle) {
                 if (annotate.current.Features.dragOn) {
@@ -1528,6 +1561,65 @@ export default function LabelDisplay() {
         let index = annotate.current.Arrays.resultIndex - 1;
         RecordOperation('modify', '拖拽更新矩形框', index, JSON.stringify(annotate.current.Arrays.imageAnnotateMemory[index]));
     };
+    //--绘制移动标签
+    //----绘制标签的方法
+    const DrawMoveLabel = (ctx, x, y, color, name) => {
+        console.log(name)
+        ctx.font = "12px Verdana";
+        let txtWidth = ctx.measureText(name).width;
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.6
+        ctx.fillRect(x , y - 20, txtWidth + 8, 20);
+        ctx.globalAlpha = 1
+        ctx.fillStyle = "rgba(255,255,255, 0.7)";
+        ctx.fillText(name, x+4 , y - 5);
+    };
+    //----拖拽矩形标签时重新绘制矩形事件
+    const DragLabel = (e) => {
+        console.log("moving")
+        let _nodes = annotate.current.Nodes;
+        GetMouseInCanvasLocation(e);
+        let ent =  annotate.current.Arrays.imageAnnotateShower[annotate.current.Arrays.resultIndex - 1]
+        ent.showLabel=false
+        annotate.current.Nodes.ctx.fillStyle = "rgba(" + annotate.current.Arrays.imageAnnotateShower[annotate.current.Arrays.resultIndex - 1].rgb + "," + annotate.current.opacity + ")";
+        // DrawRectLabel(_nodes.ctx,item.rectMask.xMin, item.rectMask.yMin, item.color, item.name, index + 1);
+        DrawSavedAnnotateInfoToShow();
+        DrawMoveLabel(annotate.current.Nodes.ctx,annotate.current.mouseX, annotate.current.mouseY, ent.color, ent.name);
+
+        // DrawSavedAnnotateInfoToMemory(false);
+    };
+
+    //----移除矩形标签拖拽事件，并将最新数据绘制到存储面板中
+    const RemoveDragLabel = () => {
+
+        var targetIndex = -1
+        let _arrays = annotate.current.Arrays;
+        let ent =  annotate.current.Arrays.imageAnnotateShower[annotate.current.Arrays.resultIndex - 1]
+        let list = _arrays.imageAnnotateShower
+        for (let i = 0; i < list.length; i++) {
+            let con = list[i].content
+            if (inpolygon(con, { x: annotate.current.mouseX, y: annotate.current.mouseY })) {
+                targetIndex = i + 1
+            }
+        }
+
+        if ((annotate.current.mouseX - annotate.current.rectX >= 5 || annotate.current.rectX - annotate.current.mouseX >= 5) && (targetIndex != -1)) {  // 判断绘制距离大于五才认定为有效绘制
+            let sourceId = _arrays.imageAnnotateShower[parseInt(annotate.current.sourceIndex) - 1]['id']
+            let targetId = _arrays.imageAnnotateShower[targetIndex - 1]['id']
+            ent.visAble = false
+            // 保存绘图数据
+            CreateNewRelationshipResultList(sourceId, targetId, "addChild");
+            DrawSavedAnnotateInfoToShow();
+            let index = annotate.current.Arrays.relationshipIndex - 1;
+            RecordOperation('add', '附属关系', index, JSON.stringify(annotate.current.Arrays.relationshipAnnotateMemory[index]));
+        }else{
+        ent.showLabel=true
+        }
+        ReplaceAnnotateMemory();
+        annotate.current.Nodes.canvas.removeEventListener('mousemove', DragLabel);
+        annotate.current.Nodes.canvas.removeEventListener('mouseup', RemoveDragLabel);
+
+    };
 
 
     //----计算更新鼠标相对容器的位置
@@ -1799,6 +1891,8 @@ export default function LabelDisplay() {
                 },
                 attribute: [],
                 trend: [],
+                showLabel:true,
+                children:[],
                 color: color,
                 type: "",
                 trendIndex: 0,
@@ -1862,6 +1956,8 @@ export default function LabelDisplay() {
                 },
                 attribute: [],
                 trend: [],
+                showLabel:true,
+                children:[],
                 color: color,
                 type: "",
                 trendIndex: 0,
@@ -1908,6 +2004,8 @@ export default function LabelDisplay() {
                     "rectMask": {},
                     "centerPoint": [10, 10],
                     "trend": [],
+                    "showLabel":true,
+                    "children":[],
                     "color": color,
                     "trendIndex": 0,
                     "lx": lx,
@@ -1976,7 +2074,16 @@ export default function LabelDisplay() {
     //----创建新的关系
     const CreateNewRelationshipResultList = (source, target, contentType) => {
         let id = uuid()
-        // if (contentType === "rlationship") {
+        if (contentType === "addChild") {
+            // let eSource = entityContext.array.find(function (item, index, arr) {
+            //     return item.id === ids[3]
+            // })
+            let eTarget = entityContext.array.find(function (item, index, arr) {
+                return item.id === target
+            })
+            eTarget['children'].push(source)
+    }
+    else{
 
         let color = coloring()
         if (relType.current) {
@@ -2008,6 +2115,7 @@ export default function LabelDisplay() {
         }
         relationshipArray.current = [...relationshipArray.current, rel]
         updateRelationshipArray(relationshipArray.current)
+    }
     };
 
     //----删除某个已标定关系结果
@@ -2259,6 +2367,22 @@ export default function LabelDisplay() {
                 else
                     arr[index].active = false
             })
+
+            let element = entityContext.array.find(function (_item, index, arr) {
+                return _item.id === item.id
+            })
+            let k = 0;
+            var elementChild = element.children
+            var childLen = elementChild.length
+            while (k < childLen) {
+                console.log(elementChild[k])
+                let eTarget = entityContext.array.find(function (item, index, arr) {
+                    return item.id === elementChild[k]
+                })
+                eTarget.visAble = true
+                k++
+            }
+
             if (changeActive.current == 0) {
                 // setEntityArray([...entityArray])
                 updateEntityArray(entityContext.array)
@@ -2289,9 +2413,25 @@ export default function LabelDisplay() {
     //实体鼠标离开
     const entityMouseOut = (ent) => {
         // if (layoutType == 0) {
+        var item = ent.target
         entityContext.array.forEach(function (i, index, arr) {
             arr[index].active = false
         })
+        let element = entityContext.array.find(function (_item, index, arr) {
+            return _item.id === item.id
+        })
+        let k = 0;
+        var elementChild = element.children
+        var childLen = elementChild.length
+        while (k < childLen) {
+            console.log(elementChild[k])
+            let eTarget = entityContext.array.find(function (item, index, arr) {
+                return item.id === elementChild[k]
+            })
+            eTarget.visAble = false
+            k++
+        }
+
         if (changeActive.current == 1) {
             // setEntityArray([...entityArray])
             updateEntityArray(entityContext.array)
@@ -2301,7 +2441,6 @@ export default function LabelDisplay() {
         // }
 
 
-        var item = ent.target
         var sPathD = d3
             .selectAll("[class*=" + "sD-" + item.id + "]")
             .style("display", "none")
@@ -2379,8 +2518,12 @@ export default function LabelDisplay() {
     
     //绘制图谱
     const drawGraph = ()=>{
-            let svgWidth = chart.current.clientWidth
-            let svgHeight = chart.current.clientHeight
+            // let svgWidth = chart.current.clientWidth
+            // let svgHeight = chart.current.clientHeight
+            
+            let svgWidth = annotate.current.iWidth
+            let svgHeight = annotate.current.iHeight
+
             let rSize = 60
             var graphsvg =  d3.select('#graph').select("#graphSvg")
             var entSvg = graphsvg.select("#entityGraph")
@@ -2549,62 +2692,30 @@ export default function LabelDisplay() {
                             element.x = svgWidth * (element.lx - element.ix) / (element.iScale * element.iWidth)
                             element.y = svgHeight * (element.ly - element.iy) / (element.iScale * element.iHeight)
                         }
-
-
+                        
+                        if (focusEntId.current == element.id) {
+                            //显示属性
+                            
                         var smallR = 10
                         var k = 0
-                        var startR = -Math.PI / 2
+                        var attrStartR = -Math.PI / 2
                         var elementAttribute = element.attribute
-                        var len = elementAttribute.length
-                        var stepR = Math.PI *2 / len
-                        //显示属性
-                        if (focusEntId.current == element.id) {
-                            while (k < len) {
-                                var t = startR + k * stepR
-                                var dataset = { startAngle: startR + (k-1) * stepR , endAngle: t}; //创建一个弧生成器
+                        var attrLen = elementAttribute.length
+                        var attrStepR = Math.PI *2 / attrLen
+                            while (k < attrLen) {
+                                var t = attrStartR + k * attrStepR
+                                var dataset = { startAngle: attrStartR + (k-1) * attrStepR , endAngle: t}; //创建一个弧生成器
                                 var arcPath = d3.arc()
-                                            .innerRadius(rSize)
-                                            .outerRadius(rSize+5);
+                                    .innerRadius(rSize)
+                                    .outerRadius(rSize+5);
                                 var x = element.x + (rSize + smallR) * Math.cos(t)
                                 var y = element.y + (rSize + smallR) * Math.sin(t)
                                 var attr = attrSvg.append("path")
-                                            .attr("d",arcPath(dataset))	
-                                            .attr("transform","translate("+element.x+","+element.y+")")
-                                            .attr("stroke",element.color)
-                                            .attr("stroke-width","0.5px")
-                                            .attr("fill",mcolor[k]);
-                                
-                                // 圆圈
-                                // var x = element.x + (rSize + smallR) * Math.cos(t)
-                                // var y = element.y + (rSize + smallR) * Math.sin(t)
-                                // var smallCircle = svg.append("circle")
-                                //     .attr("id", element.id + "_" + k)
-                                //     .attr("class", "smallCircle" + element.id)
-                                //     .attr("cx", x)
-                                //     .attr("cy", y)
-                                //     .attr("r", 10)
-                                //     // .attr("opacity", 0)
-                                //     .attr("fill", "rgb(0,0,0,0)")
-                                //     .attr("stroke-width", 2)
-                                //     .attr("stroke", element.color)
-                                //     .on("click", function (d) {
-                                //         attrClick(d, element.id, k)
-                                //     })
-                                // var attrKey = svg.append("text")
-                                //     .attr("id", "t_" + element.id + "_" + k)
-                                //     .attr("class", "text_attr" + element.id)
-                                //     .attr("x", x + (15))
-                                //     .attr("y", y)
-                                //     .attr("opacity", 1)
-                                //     .text(elementAttribute[k].attrKey + ": " + elementAttribute[k].attrValue)
-                                // .on("mouseover", function (d) {
-                                //     entityMouseOver(d)
-                                // })
-                                // .on("mouseout", function (d) {
-                                //     entityMouseOut(d)
-                                // })
-
-
+                                    .attr("d",arcPath(dataset))	
+                                    .attr("transform","translate("+element.x+","+element.y+")")
+                                    .attr("stroke",element.color)
+                                    .attr("stroke-width","0.5px")
+                                    .attr("fill",mcolor[k]);
                                 k = k + 1
                             }
                         }
@@ -2653,10 +2764,13 @@ export default function LabelDisplay() {
                         var text = svg.append("text")
                             .attr("id", "text_" + element.id)
                             .attr("class", "text_" + element.id)
-                            .attr("x", element.x - (5 * element.name.length))
-                            .attr("y", element.y)
+                            .attr("x", element.x)
+                            .attr("y",  element.y)
                             .text(element.name)
-                        // .style("display", "none")
+                            .attr("transform",function(d){
+                                 let bbox = this.getBBox()
+                                return "translate("+(-bbox.width/2)+","+(0)+")"
+                            })
                     }
 
                 }
@@ -3094,7 +3208,6 @@ export default function LabelDisplay() {
         })
     }
     const formatAttr = (name,attrs)=>{
-        console.log(name,attrs)
         return(
             <AttributeInput name={name} attributes={attrs} changeName={changeName} changeAttributes={changeAttributes} confirm ={changeAttributeConfirm} ></AttributeInput>   
         )
