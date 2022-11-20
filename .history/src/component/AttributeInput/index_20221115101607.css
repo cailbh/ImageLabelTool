@@ -1,0 +1,166 @@
+.nameInput{
+    /* margin: 5px; */
+    height: 40px;
+    border-bottom: 1px rgba(32,99,92,0.3) solid;
+}
+.contain{
+    height: 100%;
+}
+.attrHead{
+    background-color: rgba(230,240,241,1);
+    /* margin: 5px; */
+    color:rgba(32,99,92,1);
+    height: 25px;
+    font-size:25px;
+    line-height:30px;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4);
+    -moz-box-shadow: 0px 2px 10px #909090;
+    -webkit-box-shadow: 0px 2px 10px #909090;
+    box-shadow:0px 2px 2px #909090
+
+}
+.headName{
+    float: left;
+    margin-left: 10px;
+    width: 50%;
+    font-size:15px;
+    line-height:90px;
+    color:rgba(32,99,92,1);
+    font-size:16px;
+    line-height:30px;
+    font-weight: 600;
+    font-variant: tabular-nums;
+    line-height: 125%;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    float: left;    
+}
+.headValue{
+    float: left;
+    width: calc(50% - 40px);
+    margin: 20px;
+    font-size:15px;
+    line-height:30px;
+    font-family:"Microsoft YaHei",Tahoma,Verdana,SimSun;
+    font-style:normal;
+    font-variant:normal;
+    font-size-adjust:none;
+    font-stretch:normal;
+    font-weight:normal;
+    border-radius: 5px;
+}
+.attrInput{
+    /* margin: 5px; */
+    height: 40px;
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+}
+.attrInputDiv{
+    margin: 5px;
+    height: calc(100% - 160px);
+    overflow: scroll;
+    scrollbar-width: none;
+}
+.attrKey{
+    margin: 2px;
+    height: calc(100% - 4px);
+    width: calc(70% - 8px);
+    float: left;
+    text-align: center;
+    color: rgb(32,99,92);
+    font-weight: 600;
+    font-size: 16px;
+    font-variant: tabular-nums;
+    line-height: 40px;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+
+    border-radius: 5px;
+    /* cursor: none; */
+}
+.attrDel{
+    margin: 2px 5px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    /* background-color: #000; */
+    float: left;
+}
+.addAttr{
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.addAttrBut{
+    height: 100%;
+}
+.delAttrBut{
+    height: 100%;
+}
+.attrValue{
+    margin: 2px;
+    height: calc(50% - 4px);
+    width: 50%;
+    float: left;
+}
+
+.valueInput{
+    width: 100%;
+    border-radius: 10px;
+    /* margin: 1px; */
+    /* margin-left: 15px; */
+    color: rgb(32,99,92);
+
+    
+    background: rgba(210,225,230,0.1);
+    outline: none;
+    border: #000;
+    border: 0px solid rgb(204,221,224);
+    /* border-radius: 5px; */
+
+
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    font-variant: tabular-nums;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+}
+.keyInput{
+    width: 100%;
+    border-radius: 10px;
+    margin: 1px;
+
+    background: rgba(210,225,230,0);
+    outline: none;
+    border: #000;
+    border: 2px solid rgb(204,221,224);
+    border-radius: 5px;
+
+
+    color: rgb(32,99,92);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.35;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    font-feature-settings: "tnum";
+    font-family: SourceHanSerifCN-Heavy, SourceHanSerifCN;
+}
